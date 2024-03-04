@@ -47,9 +47,9 @@ from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 %load_ext tensorboard
 
 # Path to the folder where the datasets are/should be downloaded (e.g. CIFAR10)
-DATASET_PATH = "/data"
+DATASET_PATH = "/home/wsalhab/scratch/data"
 # Path to the folder where the pretrained models are saved
-CHECKPOINT_PATH = "/saved_models"
+CHECKPOINT_PATH = "/home/wsalhab/scratch/saved_models"
 # In this notebook, we use data loaders with heavier computational processing. It is recommended to use as many
 # workers as possible in a data loader, which corresponds to the number of CPU cores
 NUM_WORKERS = 10
