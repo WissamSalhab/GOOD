@@ -16,7 +16,7 @@ module load python/3.8 cuda cudnn
 source ~/envs/hello/bin/activate
 
 # Variables for readability
-logdir=/home/wsalhab/scratch/saved_models/checkpoint/SimCLR/
+logdir=/home/wsalhab/scratch/saved_models/checkpoint
 datadir=/home/wsalhab/scratch/data
 # datadir=$SLURM_TMPDIR
 
