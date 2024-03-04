@@ -22,9 +22,4 @@ datadir=/home/wsalhab/scratch/data
 
 
 tensorboard --logdir=${logdir}/lightning_logs --host 0.0.0.0 --load_fast false & \
-    python ~/workspace/pl_mnist_example/train.py \
-    --batch_size 32 \
-    --epoch 30 \
-    --num_workers 10 \
-    --logdir ${logdir} \
-    --data_dir  ${datadir}
+    python ~/workspace/GOOD/train.py 
