@@ -188,9 +188,9 @@ def train_simclr(batch_size, max_epochs=300, **kwargs):
         model = SimCLR.load_from_checkpoint(trainer.checkpoint_callback.best_model_path) # Load best checkpoint after training
 
     return model
-simclr_model = train_simclr(batch_size=256,
+simclr_model = train_simclr(batch_size=32,
                             hidden_dim=128,
                             lr=0.0001,
                             temperature=0.1,
                             weight_decay=1e-4,
-                            max_epochs=100)
+                            max_epochs=300)
