@@ -1,51 +1,30 @@
 ## Standard libraries
 import os
 from copy import deepcopy
-from torchvision.datasets import CIFAR10
 import pickle
 import numpy as np
 import pandas as pd
-
-## Imports for plotting
-import matplotlib.pyplot as plt
 import urllib.request
 from urllib.error import HTTPError
-plt.set_cmap('cividis')
-%matplotlib inline
-from IPython.display import set_matplotlib_formats
-set_matplotlib_formats('svg', 'pdf') # For export
-import matplotlib
-matplotlib.rcParams['lines.linewidth'] = 2.0
-import seaborn as sns
-sns.set()
-
-## tqdm for loading bars
+import  seaborn as sns
 from tqdm.notebook import tqdm
-
-## PyTorch
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data as data
 import torch.optim as optim
-
-## Torchvision
 import torchvision
-# from torchvision.datasets import CIFAR10
 from torchvision.datasets import CIFAR10
 from torchvision import transforms
-
-# PyTorch Lightning
-try:
-    import pytorch_lightning as pl
-except ModuleNotFoundError: # Google Colab does not have PyTorch Lightning installed by default. Hence, we do it here if necessary
-    !pip install --quiet pytorch-lightning>=1.4
-    import pytorch_lightning as pl
+import pytorch_lightning as pl
+import pickle
+import sklearn
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from pytorch_lightning.loggers import TensorBoardLogger
 
-# Import tensorboard
-%load_ext tensorboard
 
+
+sns.set()
 # Path to the folder where the datasets are/should be downloaded (e.g. CIFAR10)
 DATASET_PATH = "/home/wsalhab/scratch/data"
 # Path to the folder where the pretrained models are saved
@@ -90,9 +69,9 @@ contrast_transforms = transforms.Compose([transforms.RandomHorizontalFlip(),
                                          ])
 
 # Create the datasets
-unlabeled_data = CIFAR10(root=DATASET_PATH, download=True,
+unlabeled_data = CIFAR10(root=DATASET_PATH, download=False,
                          transform=ContrastiveTransformations(contrast_transforms, n_views=2))
-train_data_contrast = CIFAR10(root=DATASET_PATH, download=True,
+train_data_contrast = CIFAR10(root=DATASET_PATH, download=False,
                               transform=ContrastiveTransformations(contrast_transforms, n_views=2))
 
 # Set all labels in unlabeled_data to -1
@@ -163,20 +142,25 @@ class SimCLR(pl.LightningModule):
         self.info_nce_loss(batch, mode='val')
         
 def train_simclr(batch_size, max_epochs=300, **kwargs):
+  
+    logger = TensorBoardLogger("/home/wsalhab/scratch/saved_models/SimCLR/lightning_logs", name="SimCLR")
+
+
+
     trainer = pl.Trainer(default_root_dir=os.path.join(CHECKPOINT_PATH, 'SimCLR'),
                          accelerator="gpu" if str(device).startswith("cuda") else "cpu",
-                         devices=1,
+                         devices=4,
                          max_epochs=max_epochs,
                          callbacks=[ModelCheckpoint(save_weights_only=True, mode='max', monitor='val_acc_top5'),
-                                    LearningRateMonitor('epoch')])
-    trainer.logger._default_hp_metric = None # Optional logging argument that we don't need
-
+                                    LearningRateMonitor('epoch')],logger=logger)
+    # Optional logging argument that we don't need
+   
     # Check whether pretrained model exists. If yes, load it and skip training
     # pretrained_filename = os.path.join(CHECKPOINT_PATH, 'SimCLR.ckpt')
     # if os.path.isfile(pretrained_filename):
     #     print(f'Found pretrained model at {pretrained_filename}, loading...')
     #     model = SimCLR.load_from_checkpoint(pretrained_filename) # Automatically loads the model with the saved hyperparameters
-    if 1=1:
+    if True:
         print("New Training begins")
         train_loader = data.DataLoader(unlabeled_data, batch_size=batch_size, shuffle=True,
                                         drop_last=True, pin_memory=True, num_workers=NUM_WORKERS)
